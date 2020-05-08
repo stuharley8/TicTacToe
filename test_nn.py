@@ -137,8 +137,14 @@ def test_nn_3():
 
 def test_nn_4():
     x, y = load_tictactoe_csv("tic-tac-toeWBlanks.csv")
-    nn = NeuralNetwork(x, y, 10, .0003)
-    nn.train(10000)
+    nn = NeuralNetwork(x, y, 11, .00066)
+    # 10, 0.0003, Epoch: 10000  -> 76%
+    # 10, 0.0005, Epoch: 10000  -> 89%
+    # 10, 0.0007, Epoch: 10000 -> 89.5%
+    # 11, 0.00066, Epoch: 10000 -> 92.3%
+    # 11, 0.00066, Epoch: 100,000 -> 96.9%
+    # 11, 0.00066, Epoch: 200,000 -> 95.
+    nn.train(100000)
     print("4 " + str(nn.loss()))
     print(nn.accuracy_calculator())
     assert nn.loss() < .001
