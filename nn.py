@@ -39,6 +39,14 @@ def relu_derivative(x):
     """
     return 1. * (x > 0)
 
+
+def tanh_func(x):
+    return np.tanh(x)
+
+
+def tanh_derivative(x):
+    return 1. - x * x
+
 # # SoftPlus
 # def softplus(x):
 #     return np.log(1+(np.exp(x)))
@@ -83,8 +91,8 @@ class NeuralNetwork:
         Use the network to make predictions for a given vector of inputs.
         This is the math to support a feedforward pass.  
         """
-        self.layer1 = sigmoid(np.dot(inputs, self._weights1) + self._biases1)
-        return sigmoid(np.dot(self.layer1, self._weights2) + self._biases2)
+        self.layer1 = tanh_func(np.dot(inputs, self._weights1) + self._biases1)
+        return tanh_func(np.dot(self.layer1, self._weights2) + self._biases2)
 
     def feedforward(self):
         """
@@ -101,20 +109,20 @@ class NeuralNetwork:
         # application of the chain rule to find derivatives of the loss function
 
         derivative2 = np.dot(self.layer1.T, (2 * (self._y - self._output))
-                             * sigmoid_derivative(self._output))
+                             * tanh_derivative(self._output))
 
-        derivative1 = np.dot(self._input.T, (np.dot(2 * (self._y - self._output) * sigmoid_derivative(self._output),
-                                                    self._weights2.T) * sigmoid_derivative(self.layer1)))
+        derivative1 = np.dot(self._input.T, (np.dot(2 * (self._y - self._output) * tanh_derivative(self._output),
+                                                    self._weights2.T) * tanh_derivative(self.layer1)))
         # update the weights and biases with the derivatives of the loss function
         self._weights1 += (derivative1 * self._learning_rate)
         self._weights2 += (derivative2 * self._learning_rate)
 
         biases1_derivative = self._biases1 + np.sum(
-            np.dot(2 * (self._y - self._output) * sigmoid_derivative(self._output),
-                   self._weights2.T) * sigmoid_derivative(self.layer1),
+            np.dot(2 * (self._y - self._output) * tanh_derivative(self._output),
+                   self._weights2.T) * tanh_derivative(self.layer1),
             axis=0, keepdims=True)
 
-        biases2_derivative = self._biases2 + np.sum((self._y - self._output) * sigmoid_derivative(self._output),
+        biases2_derivative = self._biases2 + np.sum((self._y - self._output) * tanh_derivative(self._output),
                                                     axis=0, keepdims=True)
         # update the biases:
         self._biases1 = biases1_derivative * self._learning_rate
@@ -133,3 +141,20 @@ class NeuralNetwork:
     def loss(self):
         """ Calculate the MSE error for the set of training data."""
         return np.mean(np.square(np.subtract(self._output, self._y)))
+
+    def accuracy_calculator(self):
+        """
+        A method to calculate the accuracy
+        Author: Dr. Riley (he gave us a sample code)
+        :return: accuracy
+        """
+        threshold = 0.8
+        tp = np.sum(np.logical_and(self._y == 1, self._output > threshold))
+        tn = np.sum(np.logical_and(self._y == 0, self._output <= threshold))
+        fp = np.sum(np.logical_and(self._y == 1, self._output <= threshold))
+        fn = np.sum(np.logical_and(self._y == 0, self._output > threshold))
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        print(self._y)
+        print(self._output)
+        return accuracy
+

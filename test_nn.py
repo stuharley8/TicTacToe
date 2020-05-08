@@ -51,9 +51,9 @@ def load_tictactoe_csv(filepath):
                 elif s == "x":
                     board += [1]
                 else:
-                    board += [0.5]
+                    board += [2]
             # board = [0 if s == "o" else 1 for s in cols[:-1]]
-            label = [1] if cols[-1] == "Owin" else [1]
+            label = [0] if cols[-1] == "Owin" else [1]
             labels.append(label)
             boards.append(board)
     x = np.array(boards)
@@ -126,18 +126,21 @@ def test_nn_2():
 
 
 def test_nn_3():
-    x, y = load_tictactoe_csv("tic-tac-toeWBlanks.csv")
-    nn = NeuralNetwork(x, y, 30, .004)
-    nn.train(1000000)
+    x, y = load_tictactoe_csv("tic-tac-toeWBlanksSmall.csv")
+    nn = NeuralNetwork(x, y, 10, .004)
+    nn.train(10000)
+
     print("3 " + str(nn.loss()))
+    print(nn.accuracy_calculator())
     assert nn.loss() < .1
 
 
 def test_nn_4():
     x, y = load_tictactoe_csv("tic-tac-toeWBlanks.csv")
-    nn = NeuralNetwork(x, y, 20, .03)
-    nn.train(100000)
+    nn = NeuralNetwork(x, y, 10, .0003)
+    nn.train(10000)
     print("4 " + str(nn.loss()))
+    print(nn.accuracy_calculator())
     assert nn.loss() < .001
 
 
@@ -145,7 +148,8 @@ def test_nn_5():
     x, y = load_tictactoe_csv("tic-tac-toeWBlanks.csv")
     nn = NeuralNetwork(x, y, 20, .01)
     nn.train(100000)
-    #    print(nn.loss())
+    print(nn.loss())
+    print(nn.accuracy_calculator())
     assert nn.loss() < .01
 
 
