@@ -22,6 +22,32 @@ def sigmoid_derivative(x):
     return x * (1 - x)
 
 
+def relu_function(x):
+    """
+    An activation function for non-linear unit
+    :param x:
+    :return:
+    """
+    return np.maximum(0, x)
+
+
+def relu_derivative(x):
+    """
+    The derivative of the ReLU
+    :param x:
+    :return:
+    """
+    return 1. * (x > 0)
+
+# # SoftPlus
+# def softplus(x):
+#     return np.log(1+(np.exp(x)))
+#
+# # SoftPlus derivative:
+# def softplus_deriv(x):
+#   return 1/(1+(np.exp(-x))
+
+
 class NeuralNetwork:
     """Represents a basic fully connected single-layer neural network.  
 
@@ -74,20 +100,26 @@ class NeuralNetwork:
         """
         # application of the chain rule to find derivatives of the loss function
 
-        d_loss_function = 2 * (np.subtract(self._y, self._output)) * sigmoid_derivative(self._output)
+        derivative2 = np.dot(self.layer1.T, (2 * (self._y - self._output))
+                             * sigmoid_derivative(self._output))
 
-        derivative_weights2 = np.dot(self.layer1.T, d_loss_function)
-        derivative_weights1 = np.dot(self._input.T, (np.dot(d_loss_function,
-                                                            self._weights2.T) * sigmoid_derivative(self.layer1)))
-        derivative_biases2 = self._biases2 + (np.sum(d_loss_function / 2, axis=0, keepdims=True) * self._learning_rate)
-        derivative_biases1 = self._biases1 + (np.sum(np.dot(d_loss_function, self._weights2.T) *
-                                                    sigmoid_derivative(self.layer1), axis=0, keepdims=True) * self._learning_rate)
-
+        derivative1 = np.dot(self._input.T, (np.dot(2 * (self._y - self._output) * sigmoid_derivative(self._output),
+                                                    self._weights2.T) * sigmoid_derivative(self.layer1)))
         # update the weights and biases with the derivatives of the loss function
-        self._weights1 += derivative_weights1 * self._learning_rate
-        self._weights2 += derivative_weights2 * self._learning_rate
-        self._biases1 = derivative_biases1
-        self._biases2 = derivative_biases2
+        self._weights1 += (derivative1 * self._learning_rate)
+        self._weights2 += (derivative2 * self._learning_rate)
+
+        biases1_derivative = self._biases1 + np.sum(
+            np.dot(2 * (self._y - self._output) * sigmoid_derivative(self._output),
+                   self._weights2.T) * sigmoid_derivative(self.layer1),
+            axis=0, keepdims=True)
+
+        biases2_derivative = self._biases2 + np.sum((self._y - self._output) * sigmoid_derivative(self._output),
+                                                    axis=0, keepdims=True)
+        # update the biases:
+        self._biases1 = biases1_derivative * self._learning_rate
+
+        self._biases2 = biases2_derivative * self._learning_rate
 
     def train(self, epochs=100):
         """This method trains the network for the given number of epochs.
