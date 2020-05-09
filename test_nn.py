@@ -137,7 +137,7 @@ def test_nn_3():
 
 
 def test_nn_4():
-    x, y = load_tictactoe_csv("tic-tac-toeWBlanks.csv")
+    x, y = load_tictactoe_csv("tic-tac-toeWBlanksTraining.csv")
     nn = NeuralNetwork(x, y, 11, .00066)
     # 10, 0.0003, Epoch: 10000  -> 76%
     # 10, 0.0005, Epoch: 10000  -> 89%
@@ -161,7 +161,6 @@ def test_nn_5():
 
 
 def test_nn_blanks():
-    random_split_data()
     x, y = load_tictactoe_csv("tic-tac-toeWBlanksTraining.csv")
     nn = NeuralNetwork(x, y, 11, .00066)
     nn.train(100000)
@@ -259,6 +258,7 @@ def main() -> int:
     """
 
     # test_show_results()
+    random_split_data()
 
     n = int(input("Enter test number (1-12; 0 = run all): "))
     if n == 0:
