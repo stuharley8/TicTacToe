@@ -117,17 +117,17 @@ class NeuralNetwork:
         self._weights1 += (derivative1 * self._learning_rate)
         self._weights2 += (derivative2 * self._learning_rate)
 
-        biases1_derivative = self._biases1 + np.sum(
+        biases1_derivative = self._biases1 + (np.sum(
             np.dot(2 * (self._y - self._output) * tanh_derivative(self._output),
                    self._weights2.T) * tanh_derivative(self.layer1),
-            axis=0, keepdims=True)
+            axis=0, keepdims=True) * self._learning_rate)
 
-        biases2_derivative = self._biases2 + np.sum((self._y - self._output) * tanh_derivative(self._output),
-                                                    axis=0, keepdims=True)
+        biases2_derivative = self._biases2 + (np.sum((self._y - self._output) * tanh_derivative(self._output),
+                                                    axis=0, keepdims=True) * self._learning_rate)
         # update the biases:
-        self._biases1 = biases1_derivative * self._learning_rate
+        self._biases1 = biases1_derivative
 
-        self._biases2 = biases2_derivative * self._learning_rate
+        self._biases2 = biases2_derivative
 
     def train(self, epochs=100):
         """This method trains the network for the given number of epochs.

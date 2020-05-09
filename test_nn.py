@@ -8,6 +8,7 @@
 from nn import NeuralNetwork
 from typing import *
 import numpy as np
+import random
 
 
 def create_or_nn_data():
@@ -159,6 +160,43 @@ def test_nn_5():
     assert nn.loss() < .01
 
 
+def test_nn_blanks():
+    random_split_data()
+    x, y = load_tictactoe_csv("tic-tac-toeWBlanksTraining.csv")
+    nn = NeuralNetwork(x, y, 11, .00066)
+    nn.train(100000)
+    boards = []
+    labels = []
+    with open("tic-tac-toeWBlanksValidation.csv") as file:
+        for line in file:
+            cols = line.strip().split(",")
+            board = []
+            for s in cols[:-1]:
+                if s == "o":
+                    board += [0]
+                elif s == "x":
+                    board += [1]
+                else:
+                    board += [2]
+            label = [0] if cols[-1] == "Owin" else [1]
+            labels.append(label)
+            boards.append(board)
+    lines = np.array(boards)
+    outputs = np.array(labels)
+    count = 0
+    right = 0
+    wrong = 0
+    for line in lines:
+        actual_output = outputs[count]
+        calc_output = int(nn.inference(line) + .5)  # rounds to 0 or 1
+        if actual_output == calc_output:
+            right += 1
+        else:
+            wrong += 1
+        count += 1
+    print("Accuracy: " + str(right / (right + wrong)))
+
+
 def run_all() -> None:
     """Runs all test cases"""
     test_or_nn_1()
@@ -200,6 +238,21 @@ def test_show_results() -> None:
         count += 1
 
 
+def random_split_data() -> None:
+    """Splits the tic-tac-toeWBlanks file into training and validation files. ~75%/25% split"""
+    training_file = open("tic-tac-toeWBlanksTraining.csv", "w")
+    validation_file = open("tic-tac-toeWBlanksValidation.csv", "w")
+    with open("tic-tac-toeWBlanks.csv") as file:
+        for line in file:
+            rand = random.random()
+            if rand > .75:
+                validation_file.write(line)
+            else:
+                training_file.write(line)
+    training_file.close()
+    validation_file.close()
+
+
 def main() -> int:
     """Main test program which prompts user for tests to run and displays any
     result.
@@ -207,7 +260,7 @@ def main() -> int:
 
     # test_show_results()
 
-    n = int(input("Enter test number (1-11; 0 = run all): "))
+    n = int(input("Enter test number (1-12; 0 = run all): "))
     if n == 0:
         run_all()
         return 0
@@ -233,6 +286,8 @@ def main() -> int:
         result = test_nn_4()
     elif n == 11:
         result = test_nn_5()
+    elif n == 12:
+        result = test_nn_blanks()
     else:
         print("Error: unrecognized test number " + str(n))
     print("Test passes with result " + str(result))
